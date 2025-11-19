@@ -18,18 +18,90 @@
     </div>
   </header>
 
-  <main>
+    <main>
     <section class="section container">
-      <h2>Campus Map (simple)</h2>
-      <p class="muted">This simple, responsive map highlights key buildings you should find in your first week.</p>
+      <h2>Campus Map</h2>
+      <p class="muted">Interactive campus map — click a pin or a location to view details and quick tips.</p>
 
-      <div class="planner-grid" style="margin-top:1rem;">
-        <div class="planner-card"><strong>Library</strong><p class="tiny-muted">Main study hub, 24/7 study floors</p></div>
-        <div class="planner-card"><strong>Student Centre</strong><p class="tiny-muted">Student services & clubs</p></div>
-        <div class="planner-card"><strong>Lecture Hall A</strong><p class="tiny-muted">Large lectures & orientation</p></div>
-        <div class="planner-card"><strong>Cafeteria</strong><p class="tiny-muted">Affordable meals & meeting spot</p></div>
-        <div class="planner-card"><strong>Health & Counselling</strong><p class="tiny-muted">Wellbeing support</p></div>
-        <div class="planner-card"><strong>IT Helpdesk</strong><p class="tiny-muted">Wi‑Fi, account help</p></div>
+      <div class="campus-map" style="margin-top:1rem;display:grid;grid-template-columns:1fr 320px;gap:16px;align-items:start">
+        <!-- Left: SVG map -->
+        <div class="map-canvas" aria-hidden="false">
+          <!-- Simple schematic SVG map (replace with official map if available) -->
+          <svg id="campusSvg" viewBox="0 0 800 560" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">
+            <rect x="0" y="0" width="800" height="560" fill="#f8f7f5"/>
+            <!-- paths for walkways -->
+            <g stroke="#e6e2dd" stroke-width="20" fill="none" stroke-linecap="round">
+              <path d="M60 120 L740 120 L740 440" />
+              <path d="M60 280 L300 280 L300 520" />
+            </g>
+
+            <!-- buildings (simplified boxes) -->
+            <g class="buildings" fill="#fff" stroke="#e8e4e0" stroke-width="2">
+              <rect id="b_library" x="80" y="60" width="140" height="110" rx="8"/>
+              <rect id="b_studentcentre" x="250" y="200" width="160" height="120" rx="8"/>
+              <rect id="b_hall" x="520" y="60" width="160" height="120" rx="8"/>
+              <rect id="b_cafe" x="520" y="240" width="120" height="90" rx="8"/>
+              <rect id="b_health" x="80" y="320" width="140" height="100" rx="8"/>
+              <rect id="b_it" x="360" y="360" width="120" height="100" rx="8"/>
+            </g>
+
+            <!-- pins (circles) -->
+            <g id="pins" class="pins">
+              <g class="pin" data-id="library" transform="translate(150,115)">
+                <circle r="12" fill="var(--accent)" stroke="#fff" stroke-width="2"/>
+                <title>Library</title>
+              </g>
+              <g class="pin" data-id="studentcentre" transform="translate(330,260)">
+                <circle r="12" fill="var(--accent-2)" stroke="#fff" stroke-width="2"/>
+                <title>Student Centre</title>
+              </g>
+              <g class="pin" data-id="lecturehall" transform="translate(600,115)">
+                <circle r="12" fill="#f59e0b" stroke="#fff" stroke-width="2"/>
+                <title>Lecture Hall</title>
+              </g>
+              <g class="pin" data-id="cafeteria" transform="translate(580,285)">
+                <circle r="12" fill="#34d399" stroke="#fff" stroke-width="2"/>
+                <title>Cafeteria</title>
+              </g>
+              <g class="pin" data-id="health" transform="translate(150,370)">
+                <circle r="12" fill="#ef4444" stroke="#fff" stroke-width="2"/>
+                <title>Health & Counselling</title>
+              </g>
+              <g class="pin" data-id="it" transform="translate(420,410)">
+                <circle r="12" fill="#0ea5e9" stroke="#fff" stroke-width="2"/>
+                <title>IT Helpdesk</title>
+              </g>
+            </g>
+
+            <!-- simple labels (hidden on small screens via CSS) -->
+            <g class="labels" fill="#1f2937" font-size="12" font-family="Inter, Arial, sans-serif">
+              <text x="150" y="50" text-anchor="middle" font-weight="700">Library</text>
+              <text x="330" y="190" text-anchor="middle" font-weight="700">Student Centre</text>
+              <text x="600" y="50" text-anchor="middle" font-weight="700">Lecture Hall</text>
+            </g>
+          </svg>
+        </div>
+
+        <!-- Right: interactive list + details -->
+        <aside class="map-sidebar">
+          <div class="map-actions">
+            <input id="mapSearch" class="input" placeholder="Filter locations (e.g., library)" aria-label="Filter locations">
+          </div>
+
+          <div class="locations-list" id="locationsList">
+            <button class="loc" data-id="library"><strong>Library</strong><div class="tiny-muted">Main study hub (24/7 study floors)</div></button>
+            <button class="loc" data-id="studentcentre"><strong>Student Centre</strong><div class="tiny-muted">Student services & clubs</div></button>
+            <button class="loc" data-id="lecturehall"><strong>Lecture Hall A</strong><div class="tiny-muted">Large lectures & orientation</div></button>
+            <button class="loc" data-id="cafeteria"><strong>Cafeteria</strong><div class="tiny-muted">Meals & meeting spot</div></button>
+            <button class="loc" data-id="health"><strong>Health & Counselling</strong><div class="tiny-muted">Wellbeing support</div></button>
+            <button class="loc" data-id="it"><strong>IT Helpdesk</strong><div class="tiny-muted">Wi‑Fi & account help</div></button>
+          </div>
+
+          <div class="loc-details" id="locDetails" aria-live="polite">
+            <h4 id="detailsTitle">Select a location</h4>
+            <p id="detailsBody" class="muted">Click a pin or a location to see quick info, opening hours, and tips.</p>
+          </div>
+        </aside>
       </div>
 
       <h3 style="margin-top:1rem;">Tips for using the map</h3>
@@ -49,6 +121,66 @@
       <nav class="footer-nav"><a href="#">Accessibility</a></nav>
     </div>
   </footer>
+
+  <script>
+    // Campus map interactions: highlight pin and show details
+    (function(){
+      const pins = document.querySelectorAll('#pins .pin');
+      const locButtons = document.querySelectorAll('.loc');
+      const detailsTitle = document.getElementById('detailsTitle');
+      const detailsBody = document.getElementById('detailsBody');
+      const search = document.getElementById('mapSearch');
+
+      const locations = {
+        library: {title:'Library', body:'Main study hub — quiet floors, group rooms. Open 24/7 for term weeks.'},
+        studentcentre: {title:'Student Centre', body:'Student services, clubs, and info desks. Great first-stop for enquiries.'},
+        lecturehall: {title:'Lecture Hall A', body:'Large lectures and orientation sessions. Arrive 10–15 min early.'},
+        cafeteria: {title:'Cafeteria', body:'Affordable meals, grab-and-go options and meeting spot.'},
+        health: {title:'Health & Counselling', body:'Wellbeing support and appointments. Contact for counselling services.'},
+        it: {title:'IT Helpdesk', body:'Wi‑Fi, account and device support. Bring student ID for faster help.'}
+      };
+
+      function clearActive(){
+        pins.forEach(p => p.classList.remove('active'));
+        locButtons.forEach(b => b.classList.remove('active'));
+      }
+
+      function showDetails(id){
+        const loc = locations[id];
+        if(!loc) return;
+        detailsTitle.textContent = loc.title;
+        detailsBody.textContent = loc.body;
+      }
+
+      pins.forEach(p => p.addEventListener('click', () => {
+        const id = p.dataset.id;
+        clearActive();
+        p.classList.add('active');
+        const btn = document.querySelector('.loc[data-id="'+id+'"]');
+        if(btn) btn.classList.add('active');
+        showDetails(id);
+      }));
+
+      locButtons.forEach(b => b.addEventListener('click', () => {
+        const id = b.dataset.id;
+        clearActive();
+        b.classList.add('active');
+        const pin = document.querySelector('#pins .pin[data-id="'+id+'"]');
+        if(pin) pin.classList.add('active');
+        showDetails(id);
+      }));
+
+      // Simple filter
+      search.addEventListener('input', (e) => {
+        const q = e.target.value.toLowerCase().trim();
+        document.querySelectorAll('.locations-list .loc').forEach(btn => {
+          const text = btn.textContent.toLowerCase();
+          btn.style.display = text.includes(q) ? '' : 'none';
+        });
+      });
+
+    })();
+  </script>
 
 </body>
 </html>

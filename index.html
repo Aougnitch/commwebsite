@@ -4,12 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Student Survival Guide — First Semester</title>
+    <!-- Google Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="index.css">
 </head>
 <body>
     <header class="site-header">
         <div class="container header-inner">
-            <h1 class="logo">Student Survival</h1>
+            <h1 class="logo">RIT DUBAI <span style="color: black;">Student Survival</span></h1>
             <button id="navToggle" class="nav-toggle" aria-expanded="false" aria-controls="primaryNav" aria-label="Open navigation">
                 <span class="hamburger" aria-hidden="true"></span>
             </button>
@@ -52,15 +54,19 @@
 
         <section id="planner" class="section pale">
             <div class="container">
-                <h3>Weekly Planner (Template)</h3>
-                <p class="muted">Copy this into your notes app or print it.</p>
-                <div class="planner-grid">
-                    <div class="planner-card"><strong>Monday</strong><p class="tiny-muted">Classes: 9:00 — 12:00</p></div>
-                    <div class="planner-card"><strong>Tuesday</strong><p class="tiny-muted">Study block: 14:00 — 16:00</p></div>
-                    <div class="planner-card"><strong>Wednesday</strong><p class="tiny-muted">Group meeting / Tutor</p></div>
-                    <div class="planner-card"><strong>Thursday</strong><p class="tiny-muted">Library: research & readings</p></div>
-                    <div class="planner-card"><strong>Friday</strong><p class="tiny-muted">Assignment review / submit</p></div>
-                    <div class="planner-card"><strong>Weekend</strong><p class="tiny-muted">Rest, catch up, social</p></div>
+                <h3>Weekly Calendar</h3>
+                <p class="muted">Tap a cell to add a short note (e.g., "Read Chap 1"). Entries are saved to your browser.</p>
+
+                <div class="calendar-wrap">
+                    <div class="calendar-header">
+                        <div class="calendar-title">This Week</div>
+                        <div class="calendar-legend"><span class="dot"></span>Study <span class="dot work"></span>Class</div>
+                    </div>
+
+                    <div class="calendar-grid" id="calendarGrid" role="grid" aria-label="Weekly calendar">
+                        <!-- JS will populate days x slots -->
+                    </div>
+                    <p class="muted small">Tip: Use short notes. Tap a filled cell to edit or clear it.</p>
                 </div>
             </div>
         </section>
@@ -161,6 +167,63 @@
                     else content.style.maxHeight = null;
                 });
             });
+        })();
+
+        // Weekly calendar: simple editable grid saved in localStorage
+        (function(){
+            const grid = document.getElementById('calendarGrid');
+            if(!grid) return;
+            const days = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+            const slots = ['8am','10am','12pm','2pm','4pm','6pm'];
+            const key = 'student-survival-calendar-v1';
+
+            // load
+            const saved = JSON.parse(localStorage.getItem(key) || '{}');
+
+            // create header row
+            const headerRow = document.createElement('div');
+            headerRow.className = 'cal-row header';
+            headerRow.appendChild(cellFactory('time', ''));
+            days.forEach(d => headerRow.appendChild(cellFactory('day', d)));
+            grid.appendChild(headerRow);
+
+            slots.forEach((slot, r) => {
+                const row = document.createElement('div');
+                row.className = 'cal-row';
+                row.appendChild(cellFactory('time', slot));
+                days.forEach((day, c) => {
+                    const id = `c_${r}_${c}`;
+                    const content = saved[id] || '';
+                    const cell = cellFactory('cell', content);
+                    cell.tabIndex = 0;
+                    cell.setAttribute('data-id', id);
+                    // click to edit
+                    cell.addEventListener('click', () => editCell(cell, id));
+                    cell.addEventListener('keydown', (e) => {
+                        if(e.key === 'Enter') editCell(cell, id);
+                    });
+                    row.appendChild(cell);
+                });
+                grid.appendChild(row);
+            });
+
+            function cellFactory(type, text){
+                const d = document.createElement('div');
+                d.className = 'cal-' + type;
+                d.textContent = text;
+                return d;
+            }
+
+            function editCell(cell, id){
+                const current = cell.textContent || '';
+                const val = prompt('Enter a short note for this slot (leave empty to clear):', current);
+                if(val === null) return; // cancelled
+                cell.textContent = val;
+                const now = JSON.parse(localStorage.getItem(key) || '{}');
+                if(val.trim() === ''){ delete now[id]; }
+                else now[id] = val;
+                localStorage.setItem(key, JSON.stringify(now));
+            }
         })();
     </script>
 </body>
