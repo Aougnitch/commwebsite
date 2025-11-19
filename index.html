@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Survival Guide — First Semester</title>
+    <link rel="stylesheet" href="index.css">
+</head>
+<body>
+    <header class="site-header">
+        <div class="container header-inner">
+            <h1 class="logo">Student Survival</h1>
+            <button id="navToggle" class="nav-toggle" aria-expanded="false" aria-controls="primaryNav" aria-label="Open navigation">
+                <span class="hamburger" aria-hidden="true"></span>
+            </button>
+            <nav id="primaryNav" class="nav" role="navigation">
+                <a href="index.html">Home</a>
+                <a href="#checklist">Checklist</a>
+                <a href="#planner">Planner</a>
+                <a href="study-tips.html">Study Tips</a>
+                <a href="campus-map.html">Campus Map</a>
+                <a href="#resources">Resources</a>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <section class="hero">
+            <div class="container">
+                <h2>Welcome to your first semester</h2>
+                <p class="lead">Short, practical guidance to navigate orientation, coursework, time management and campus life — bite-sized and action-oriented.</p>
+                <p class="cta-row">
+                    <a class="btn" href="#checklist">Start the Checklist</a>
+                    <a class="btn ghost" href="#tips">Quick Tips</a>
+                </p>
+            </div>
+        </section>
+
+        <section id="checklist" class="section container">
+            <h3>Essential First-Week Checklist</h3>
+            <p class="muted">Tap items as you complete them. Your progress is saved locally in this browser.</p>
+            <ul id="checklist-items" class="checklist">
+                <li><label><input type="checkbox" data-id="show-up"> Attend orientation / welcome events</label></li>
+                <li><label><input type="checkbox" data-id="register-courses"> Confirm course registration and timetable</label></li>
+                <li><label><input type="checkbox" data-id="buy-materials"> Buy textbooks / digital access codes</label></li>
+                <li><label><input type="checkbox" data-id="campus-tour"> Take a campus tour & find key buildings</label></li>
+                <li><label><input type="checkbox" data-id="support-services"> Locate student support / counselling services</label></li>
+                <li><label><input type="checkbox" data-id="setup-email"> Set up student email and learning portal</label></li>
+            </ul>
+            <p class="muted small">Tip: Break big tasks into 30–60 minute blocks — it's easier to start.</p>
+        </section>
+
+        <section id="planner" class="section pale">
+            <div class="container">
+                <h3>Weekly Planner (Template)</h3>
+                <p class="muted">Copy this into your notes app or print it.</p>
+                <div class="planner-grid">
+                    <div class="planner-card"><strong>Monday</strong><p class="tiny-muted">Classes: 9:00 — 12:00</p></div>
+                    <div class="planner-card"><strong>Tuesday</strong><p class="tiny-muted">Study block: 14:00 — 16:00</p></div>
+                    <div class="planner-card"><strong>Wednesday</strong><p class="tiny-muted">Group meeting / Tutor</p></div>
+                    <div class="planner-card"><strong>Thursday</strong><p class="tiny-muted">Library: research & readings</p></div>
+                    <div class="planner-card"><strong>Friday</strong><p class="tiny-muted">Assignment review / submit</p></div>
+                    <div class="planner-card"><strong>Weekend</strong><p class="tiny-muted">Rest, catch up, social</p></div>
+                </div>
+            </div>
+        </section>
+
+        <section id="tips" class="section container">
+            <h3>Study + Life Tips</h3>
+            <ul class="tips-list">
+                <li><strong>Be consistent:</strong> 2 hours of focused study daily beats 8 hours cramming.</li>
+                <li><strong>Ask early:</strong> contact tutors or peers as soon as something is unclear.</li>
+                <li><strong>Use office hours:</strong> it's the fastest way to get personalised feedback.</li>
+                <li><strong>Small wins:</strong> set daily micro-goals (read 10 pages, solve 1 problem).</li>
+                <li><strong>Connect:</strong> join one student club or small study group your first month.</li>
+            </ul>
+        </section>
+
+        <section id="resources" class="section pale">
+            <div class="container">
+                <h3>Campus Resources</h3>
+                <ul class="resources">
+                    <li><a href="#">Academic support / tutoring</a></li>
+                    <li><a href="#">Counselling & wellbeing</a></li>
+                    <li><a href="#">IT & library services</a></li>
+                    <li><a href="#">Financial aid & scholarships</a></li>
+                </ul>
+            </div>
+        </section>
+
+        <section id="faq" class="section container">
+            <h3>FAQ</h3>
+            <div class="faq">
+                <button class="faq-q">How do I choose electives?</button>
+                <div class="faq-a">Look at course load, prerequisites and how they fit your interests. Ask your academic advisor for guidance.</div>
+
+                <button class="faq-q">What if I fail an assignment?</button>
+                <div class="faq-a">Speak with your instructor early — many institutes allow resubmission or offer feedback opportunities.</div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="site-footer">
+        <div class="container footer-inner">
+            <small>Made for first-year students • Keep this page bookmarked</small>
+            <nav class="footer-nav"><a href="#">Privacy</a> <a href="#">Accessibility</a></nav>
+        </div>
+    </footer>
+
+    <script>
+        // Simple checklist persistence
+        (function(){
+            const items = document.querySelectorAll('#checklist-items input[type=checkbox]');
+            const storageKey = 'student-survival-checklist-v1';
+            function load(){
+                try{
+                    const saved = JSON.parse(localStorage.getItem(storageKey) || '{}');
+                    items.forEach(i => { i.checked = !!saved[i.dataset.id]; });
+                }catch(e){ console.warn('Could not load checklist', e); }
+            }
+            function save(){
+                const obj = {};
+                items.forEach(i => { obj[i.dataset.id] = i.checked; });
+                localStorage.setItem(storageKey, JSON.stringify(obj));
+            }
+            items.forEach(i => i.addEventListener('change', save));
+            load();
+        })();
+
+        // Mobile nav toggle
+        (function(){
+            const toggle = document.getElementById('navToggle');
+            const nav = document.getElementById('primaryNav');
+            if(!toggle || !nav) return;
+            toggle.addEventListener('click', () => {
+                const expanded = toggle.getAttribute('aria-expanded') === 'true';
+                toggle.setAttribute('aria-expanded', String(!expanded));
+                toggle.setAttribute('aria-label', expanded ? 'Open navigation' : 'Close navigation');
+                nav.classList.toggle('open');
+            });
+        })();
+
+        // FAQ accordion (with ARIA)
+        (function(){
+            const qs = document.querySelectorAll('.faq-q');
+            qs.forEach((b, idx) => {
+                const content = b.nextElementSibling;
+                if(!content) return;
+                // set ARIA
+                b.setAttribute('aria-expanded', 'false');
+                b.setAttribute('aria-controls', 'faq-' + idx);
+                content.id = 'faq-' + idx;
+                content.setAttribute('role', 'region');
+                content.setAttribute('aria-hidden', 'true');
+
+                b.addEventListener('click', () => {
+                    const open = b.classList.toggle('open');
+                    b.setAttribute('aria-expanded', String(open));
+                    content.setAttribute('aria-hidden', String(!open));
+                    if(open) content.style.maxHeight = content.scrollHeight + 'px';
+                    else content.style.maxHeight = null;
+                });
+            });
+        })();
+    </script>
+</body>
+</html>
